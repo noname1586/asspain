@@ -2,24 +2,28 @@ import {
   ChakraProvider,
   Heading,
   Container,
+  Card, 
+  CardBody, 
   Input,
   Button,
-  Wrap,
-  Stack, 
   Image,
-  SkeletonCircle,
-  SkeletonText,
+  Spinner,
+  Tabs, 
+  TabList, 
+  TabPanels, 
+  Tab, 
+  TabPanel 
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useState } from "react";
 
 const App = () => {
+  axios.defaults.headers.post['ngrok-skip-browser-warning'] = 'true';
   //axios.defaults.headers.post['ngrok-skip-browser-warning'] = 'true';
 
-  const server = "https://489c-189-203-97-230.ngrok-free.app"
+  const server = "https://f511-189-203-97-230.ngrok-free.app"
   const [image, updateImage] = useState();
   const [prompt, updatePrompt] = useState("");
-  const [steps, updateSteps] = useState(20);
   const [loading, updateLoading] = useState();
 
 
@@ -27,7 +31,12 @@ const App = () => {
     updateLoading(true);
     let body = {
       prompt: prompt,
-      steps: steps
+      negative_prompt: "deformed, glitch, low contrast, noisy, extra hands", 
+      sampler_name:"string",
+      batch_size: 1,
+      steps: 50,
+      seed: -1,
+      cfg_scale: 7,
     }
     const result = await axios.post(`${server}/sdapi/v1/txt2img`, body);
     updateImage(result.data.images[0]);
@@ -37,32 +46,67 @@ const App = () => {
   return (
     <ChakraProvider>
       <Container>
-        <Heading marginBottom={"10px"}>First Stable-Difussion</Heading>
+    
+        <Heading marginBottom={"20px"} textAlign={'center'}>Create your own masterpiece</Heading>
 
-        {loading ? (
-          <Stack>
-            <SkeletonCircle />
-            <SkeletonText />
-          </Stack>
-        ) : image ? (
-          <Image src={`data:image/png;base64,${image}`} boxShadow="lg" />
-        ) : null}
-        
-        <Wrap marginBottom={"10px"}>
-          <Input
+         <Tabs isFitted variant='enclosed'>
+          <TabList mb='1em'>
+           <Tab>txt2img</Tab>
+           <Tab>img2img</Tab>
+          </TabList>
+         
+          <TabPanels>
+           <TabPanel>
+           <Card marginBottom={"20px"}>
+          <CardBody>
+            <Input
+            placeholder='Describe what you´d like to create'
             value={prompt}
             onChange={(e) => updatePrompt(e.target.value)}
             width={"350px"}
-          ></Input>
-          <Input
-              value={steps}
-              onChange={(e) => updateSteps(e.target.value)}
-              width={"350px"}
-          ></Input>
-          <Button onClick={(e) => generate(prompt)} colorScheme={"blue"}>
+            marginInline={"20px"}
+            ></Input>
+            <Button onClick={(e) => generate(prompt)} colorScheme={"pink"}>
             Generate
-          </Button>
-        </Wrap>
+            </Button>
+          </CardBody>
+        </Card>
+        
+          {loading ? (
+            <Card height={"500px"}   >
+              <CardBody style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+                <Spinner
+                thickness='4px'
+                speed='0.65s'
+                emptyColor='gray.200'
+                color='blue.500'
+                size='xl'
+                alignItems={"stretch"}
+                />
+          </CardBody>
+          </Card>
+        ) : image ? (
+          <Image src={`data:image/png;base64,${image}`} boxShadow="lg" />
+        ) : null}
+           </TabPanel>
+           <TabPanel>
+            <p>two!</p>
+           </TabPanel>
+          </TabPanels>
+         </Tabs>
+        
+        
+       
+   
+        
+         
+          
+         
+      
 
         
       </Container>
