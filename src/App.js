@@ -14,14 +14,23 @@ import axios from "axios";
 import { useState } from "react";
 
 const App = () => {
+  //axios.defaults.headers.post['ngrok-skip-browser-warning'] = 'true';
+
+  const server = "https://489c-189-203-97-230.ngrok-free.app"
   const [image, updateImage] = useState();
-  const [prompt, updatePrompt] = useState();
+  const [prompt, updatePrompt] = useState("");
+  const [steps, updateSteps] = useState(20);
   const [loading, updateLoading] = useState();
+
 
   const generate = async (prompt) => {
     updateLoading(true);
-    const result = await axios.post(`http://127.0.0.1:5000/?prompt=${prompt}`);
-    updateImage(result.data);
+    let body = {
+      prompt: prompt,
+      steps: steps
+    }
+    const result = await axios.post(`${server}/sdapi/v1/txt2img`, body);
+    updateImage(result.data.images[0]);
     updateLoading(false);
   };
 
@@ -44,6 +53,11 @@ const App = () => {
             value={prompt}
             onChange={(e) => updatePrompt(e.target.value)}
             width={"350px"}
+          ></Input>
+          <Input
+              value={steps}
+              onChange={(e) => updateSteps(e.target.value)}
+              width={"350px"}
           ></Input>
           <Button onClick={(e) => generate(prompt)} colorScheme={"blue"}>
             Generate
